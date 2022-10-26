@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   Text,
@@ -6,39 +5,166 @@ import {
   ImageBackground,
   TextInput,
   TouchableOpacity,
-
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Dimensions,
 } from 'react-native';
+import { useState, useEffect } from 'react';
+import AppLoading from 'expo-app-loading';
+import * as Font from 'expo-font';
+
+const loadApplication = async () => {
+  await Font.loadAsync({
+    "Roboto-Regular": require('../assets/fonts/Roboto-Regular.ttf'),
+    "Roboto-Medium": require('../assets/fonts/Roboto-Medium.ttf'),
+  })
+}
+
+const initialState = {
+  login: "",
+  email: "",
+  password: "",
+}
 
 export default function RegistrationScreen() {
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [loginBorderColor, setLoginBorderColor] = useState(false)
+  const [emailBorderColor, setEmailBorderColor] = useState(false)
+  const [passwordBorderColor, setPasswordBorderColor] = useState(false)
+  const [user, setUser] = useState(initialState)
+  const [isReady, setIsReady] = useState(false)
+  const [dimension, setDimension] = useState(Dimensions.get("window").width - 16 * 2)
+
+  const keyboardHide = () => {
+    setKeyboardVisible(true)
+    Keyboard.dismiss()
+  }
+
+  useEffect(() => {
+    const onChange = () => {
+      const width = Dimensions.get("window").width
+      setDimension(width - 16 * 2)
+    }
+    Dimensions.addEventListener("change", onChange)
+    return () => {
+      Dimensions.removeEventListener("change", onChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true)
+    })
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false)
+    })
+
+    return () => {
+      showSubscription.remove()
+      hideSubscription.remove()
+    };
+  }, [])
+
+  const onFormSubmit = () => {
+    console.log(user)
+    setUser(initialState)
+  }
+
+  if (!isReady) {
+    return (
+      <AppLoading
+        startAsync={loadApplication}
+        onFinish={() => setIsReady(true)}
+        onError={console.warn}
+      />
+    )
+  }
+
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/images/photoBG.jpg")}
-        style={styles.image}
-      >
-        <View style={styles.form}>
-          <View></View>
-          <Text style={styles.formTitle}>Регистрация</Text>
-          <View style={{marginTop: 32}}>
-            <TextInput style={styles.input} textAlign={"left"} placeholder={"Логин"} />
-          </View>
-          <View style={{marginTop: 16}}>
-            <TextInput style={styles.input} textAlign={"left"} placeholder={"Адрес электронной почты"} />
-          </View>
-          <View style={{marginTop: 16}}>
-            <TextInput style={styles.input} textAlign={"left"} placeholder={"Пароль"} secureTextEntry={"true"} />
-          </View>
-          <View style={{marginTop: 43}}>
-            <TouchableOpacity
-              style={styles.signUpBtn}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.signUpBtnTitle}>Зарегистрироваться</Text>
-            </TouchableOpacity>
-          </View>
-        </View>   
-      </ImageBackground>  
-    </View>
+    <TouchableWithoutFeedback onPress={() => keyboardHide()}>
+      <View style={styles.container}>
+        <ImageBackground
+          source={require("../assets/images/photoBG.jpg")}
+          style={styles.image}
+        >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View style={styles.form}>
+              <View style={styles.photoField}>
+                <TouchableOpacity
+                  style={styles.addPhotoBtn}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.addPhotoIcon}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.formTitle}>Регистрация</Text>
+              <View style={{marginTop: 32}}>
+                <TextInput
+                  style={{
+                    ...styles.input,
+                    borderColor: loginBorderColor ? "#FF6C00" : "#E8E8E8",
+                    width: dimension,
+                  }}
+                  textAlign={"left"}
+                  placeholder={"Логин"}
+                  onFocus={() => setLoginBorderColor(true)}
+                  onBlur={() => setLoginBorderColor(false)}
+                  value={user.login}
+                  onChangeText={(value)=> setUser((prevState)=>({...prevState, login: value}))}
+                />
+              </View>
+              <View style={{marginTop: 16}}>
+                <TextInput
+                  style={{
+                    ...styles.input,
+                    borderColor: emailBorderColor ? "#FF6C00" : "#E8E8E8",
+                    width: dimension,
+                  }}
+                  textAlign={"left"}
+                  placeholder={"Адрес электронной почты"}
+                  onFocus={() => setEmailBorderColor(true)}
+                  onBlur={() => setEmailBorderColor(false)}
+                  value={user.email}
+                  onChangeText={(value)=> setUser((prevState)=>({...prevState, email: value}))}
+                />
+              </View>
+              <View style={{marginTop: 16, marginBottom: keyboardVisible && 33}}>
+                <TextInput
+                  style={{
+                    ...styles.input,
+                    borderColor: passwordBorderColor ? "#FF6C00" : "#E8E8E8",
+                    width: dimension,
+                  }}
+                  textAlign={"left"}
+                  placeholder={"Пароль"}
+                  secureTextEntry={"true"}
+                  onFocus={() => setPasswordBorderColor(true)}
+                  onBlur={() => setPasswordBorderColor(false)}
+                  value={user.password}
+                  onChangeText={(value)=> setUser((prevState)=>({...prevState, password: value}))}
+                />
+              </View>
+              <View style={{ marginTop: 43}}>
+                <TouchableOpacity
+                  style={{...styles.signUpBtn, width: dimension,}}
+                  activeOpacity={0.8}
+                  onPress={()=>onFormSubmit()}
+                >
+                  <Text style={styles.signUpBtnTitle}>Зарегистрироваться</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{marginTop: 16, display: keyboardVisible && 'none'}}>
+                <Text style={styles.linkTitle}>Уже есть аккаунт? Войти</Text>
+              </View>
+              </View> 
+          </KeyboardAvoidingView>   
+        </ImageBackground>   
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -65,27 +191,72 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
+    position: 'relative',
+    fontFamily: "Roboto-Regular",
   },
   formTitle: {
     color: "#212121",
-    marginHorizontal: "auto",
+    marginLeft: "auto",
+    marginRight: "auto",
     marginTop: 92,
     fontSize: 30,
+    fontFamily: "Roboto-Medium"
   },
   signUpBtn: {
     height: 51,
-    backgroundColor: "#FF6C00",
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: "center",
+    ...Platform.select({
+      ios: {
+       backgroundColor: "#FF6C00", 
+      },
+      android: {
+        backgroundColor: "#ff4500",
+      }
+    }) 
   },
   signUpBtnTitle: {
     fontSize: 16,
     color: "#FFFFFF",
+    fontFamily: "Roboto-Regular",
+  },
+  photoField: {
+    backgroundColor: "#F6F6F6",
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+    position: "absolute",
+    top: -60,
+    left: "50%",
+    transform: [{ translateX: -50 }],
+  },
+  addPhotoBtn: {
+    width: 25,
+    height: 25,
+    borderWidth: 1,
+    borderColor: "#FF6C00",
+    borderRadius: "50%",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 14,
+    right: -12,
+  },
+  addPhotoIcon: {
+    color: "#FF6C00",
+  },
+  linkTitle: {
+    color: "#1B4371",
+    fontSize: 16,
+    marginLeft: "auto",
+    marginRight: "auto",
+    fontFamily: "Roboto-Regular"
   }
 });
