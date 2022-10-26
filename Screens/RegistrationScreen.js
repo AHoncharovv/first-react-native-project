@@ -36,6 +36,7 @@ export default function RegistrationScreen() {
   const [user, setUser] = useState(initialState)
   const [isReady, setIsReady] = useState(false)
   const [dimension, setDimension] = useState(Dimensions.get("window").width - 16 * 2)
+  const [secureTextEntry, setSecureTextEntry] = useState(true)
 
   const keyboardHide = () => {
     setKeyboardVisible(true)
@@ -59,6 +60,7 @@ export default function RegistrationScreen() {
     })
     const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setKeyboardVisible(false)
+      setSecureTextEntry(true)
     })
 
     return () => {
@@ -132,7 +134,7 @@ export default function RegistrationScreen() {
                   onChangeText={(value)=> setUser((prevState)=>({...prevState, email: value}))}
                 />
               </View>
-              <View style={{marginTop: 16, marginBottom: keyboardVisible && 33}}>
+              <View style={{...styles.passwordView, marginBottom: keyboardVisible && 33}}>
                 <TextInput
                   style={{
                     ...styles.input,
@@ -141,20 +143,22 @@ export default function RegistrationScreen() {
                   }}
                   textAlign={"left"}
                   placeholder={"Пароль"}
-                  secureTextEntry={"true"}
+                  secureTextEntry={secureTextEntry}
                   onFocus={() => setPasswordBorderColor(true)}
                   onBlur={() => setPasswordBorderColor(false)}
                   value={user.password}
                   onChangeText={(value)=> setUser((prevState)=>({...prevState, password: value}))}
                 />
+                <Text style={styles.passwordTitle} onPress={()=>{setSecureTextEntry(false)}}>Показать</Text>
               </View>
-              <View style={{ marginTop: 43}}>
+              <View style={{ marginTop: 43, display: keyboardVisible && "none"}}>
                 <TouchableOpacity
                   style={{...styles.signUpBtn, width: dimension,}}
                   activeOpacity={0.8}
                   onPress={()=>onFormSubmit()}
                 >
-                  <Text style={styles.signUpBtnTitle}>Зарегистрироваться</Text>
+                  <Text style={styles.signUpBtnTitle}>
+                    Зарегистрироваться</Text>
                 </TouchableOpacity>
               </View>
               <View style={{marginTop: 16, display: keyboardVisible && 'none'}}>
@@ -258,5 +262,18 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: "auto",
     fontFamily: "Roboto-Regular"
+  },
+  passwordView: {
+    marginTop: 16,
+    position: "relative"
+  },
+  passwordTitle: {
+    color: "#1B4371",
+    fontSize: 16,
+    fontFamily: "Roboto-Regular",
+    position: "absolute",
+    top: 16,
+    right: 16,
+    bottom: 15,
   }
 });
