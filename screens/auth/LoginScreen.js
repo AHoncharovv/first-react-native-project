@@ -12,29 +12,17 @@ import {
   Dimensions,
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import AppLoading from 'expo-app-loading';
-import * as Font from 'expo-font';
-
-const loadApplication = async () => {
-  await Font.loadAsync({
-    "Roboto-Regular": require('../assets/fonts/Roboto-Regular.ttf'),
-    "Roboto-Medium": require('../assets/fonts/Roboto-Medium.ttf'),
-  })
-}
 
 const initialState = {
-  login: "",
   email: "",
   password: "",
 }
 
-export default function RegistrationScreen() {
+export default function LoginScreen({ navigation }) {
   const [keyboardVisible, setKeyboardVisible] = useState(false)
-  const [loginBorderColor, setLoginBorderColor] = useState(false)
   const [emailBorderColor, setEmailBorderColor] = useState(false)
   const [passwordBorderColor, setPasswordBorderColor] = useState(false)
   const [user, setUser] = useState(initialState)
-  const [isReady, setIsReady] = useState(false)
   const [dimension, setDimension] = useState(Dimensions.get("window").width - 16 * 2)
   const [secureTextEntry, setSecureTextEntry] = useState(true)
 
@@ -74,52 +62,19 @@ export default function RegistrationScreen() {
     setUser(initialState)
   }
 
-  if (!isReady) {
-    return (
-      <AppLoading
-        startAsync={loadApplication}
-        onFinish={() => setIsReady(true)}
-        onError={console.warn}
-      />
-    )
-  }
-
   return (
     <TouchableWithoutFeedback onPress={() => keyboardHide()}>
       <View style={styles.container}>
         <ImageBackground
-          source={require("../assets/images/photoBG.jpg")}
+          source={require("../../assets/images/photoBG.jpg")}
           style={styles.image}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View style={styles.form}>
-              <View style={styles.photoField}>
-                <TouchableOpacity
-                  style={styles.addPhotoBtn}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.addPhotoIcon}>+</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.formTitle}>Регистрация</Text>
+              <Text style={styles.formTitle}>Войти</Text>
               <View style={{marginTop: 32}}>
-                <TextInput
-                  style={{
-                    ...styles.input,
-                    borderColor: loginBorderColor ? "#FF6C00" : "#E8E8E8",
-                    width: dimension,
-                  }}
-                  textAlign={"left"}
-                  placeholder={"Логин"}
-                  onFocus={() => setLoginBorderColor(true)}
-                  onBlur={() => setLoginBorderColor(false)}
-                  value={user.login}
-                  onChangeText={(value)=> setUser((prevState)=>({...prevState, login: value}))}
-                />
-              </View>
-              <View style={{marginTop: 16}}>
                 <TextInput
                   style={{
                     ...styles.input,
@@ -158,12 +113,19 @@ export default function RegistrationScreen() {
                   onPress={()=>onFormSubmit()}
                 >
                   <Text style={styles.signUpBtnTitle}>
-                    Зарегистрироваться</Text>
+                    Войти</Text>
                 </TouchableOpacity>
               </View>
-              <View style={{marginTop: 16, display: keyboardVisible && 'none'}}>
-                <Text style={styles.linkTitle}>Уже есть аккаунт? Войти</Text>
-              </View>
+              <TouchableOpacity
+                style={{ marginTop: 16, marginBottom: 111, display: keyboardVisible && 'none' }}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate("Registration")}
+              >
+                <Text style={styles.navBtn}>
+                  Не аккаунта? {" "}
+                  <Text style={styles.navBtnEntry}>Зарегистрироваться</Text>
+                </Text>
+              </TouchableOpacity>
               </View> 
           </KeyboardAvoidingView>   
         </ImageBackground>   
@@ -210,7 +172,8 @@ const styles = StyleSheet.create({
     marginRight: "auto",
     marginTop: 92,
     fontSize: 30,
-    fontFamily: "Roboto-Medium"
+    fontFamily: "Roboto-Medium",
+    marginTop: 32,
   },
   signUpBtn: {
     height: 51,
@@ -256,12 +219,15 @@ const styles = StyleSheet.create({
   addPhotoIcon: {
     color: "#FF6C00",
   },
-  linkTitle: {
+  navBtn: {
     color: "#1B4371",
     fontSize: 16,
     marginLeft: "auto",
     marginRight: "auto",
     fontFamily: "Roboto-Regular"
+  },
+  navBtnEntry: {
+    fontFamily: "Roboto-Medium"
   },
   passwordView: {
     marginTop: 16,
