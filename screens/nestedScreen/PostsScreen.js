@@ -10,31 +10,27 @@ import {
     FlatList,
     TouchableOpacity,
 } from 'react-native';
+import { getFirestore, doc, onSnapshot, collection, getDocs, firestore } from "firebase/firestore";
+import { useSelector } from 'react-redux';
+
+import firebaseApp from '../../firebase/config';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import MessageCircle from '../../assets/icons/messageCircle.svg';
 import MapPin from '../../assets/icons/mapPin.svg';
 
 export default function HomeScreen({ route, navigation }) { 
     
     const [posts, setPosts] = useState([])
-    const [latitude, setLatitude] = useState(null)
-    const [longitude, setLongitude] = useState(null)
+ 
+    const { userId, nickname, email, photoURL } = useSelector((state) => state.auth)
 
     useEffect(() => {
-        if (!route.params) { return }
-        // console.log("lat1", route.params.location.coords.latitude);
-        // console.log("long1", route.params.location.coords.longitude);
-        setPosts(prevState => [...prevState, route.params])
-        setLatitude(route.params.location.coords.latitude);
-        setLongitude(route.params.location.coords.longitude);
-    }, [route.params])
- 
-     useEffect(() => {
-        if (!route.params) { return }
-    }, [route.params])
-
-    const handleMapPress = () => {
-        navigation.navigate("Map", { latitude, longitude })
-    }
+        const db = getFirestore(firebaseApp)
+        onSnapshot(collection(db, 'posts'), (snapshot) => {
+            setPosts(snapshot.docs.map((doc)=> ({...doc.data(), id: doc.id})))
+        })
+        
+    }, [])
 
     const renderItem = ({ item }) =>
         <View style={styles.postContainer}>
@@ -44,44 +40,51 @@ export default function HomeScreen({ route, navigation }) {
                     style={styles.postPhoto}
                 />
             </View>
-            <Text style={styles.postPhotoTitle}>{item.post.title}</Text>
+            <Text style={styles.postPhotoTitle}>{item.photoTitle}</Text>
             <View style={styles.postCommentsContainer}>
                 <TouchableOpacity
                     style={styles.postCommentTextContainer}
-                    onPress={() => navigation.navigate("Comments")}
+                    onPress={() => navigation.navigate("Comments", { postId: item.id })}
                 >
                     <MessageCircle width={24} height={24} />
                     <Text style={styles.postCommentCount}>0</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.postCommentTextContainer}
-                    // onPress={() => navigation.navigate("Map")}
-                    onPress={()=>{handleMapPress()}}
+                    onPress={() => {
+                        navigation.navigate("Map", {
+                            latitude: item.location.latitude,
+                            longitude: item.location.longitude,
+                        })
+                    }}
                 >
                     <MapPin width={24} height={24} />
-                    <Text style={styles.postCommentText}>{item.post.area}</Text>
+                    <Text style={styles.postCommentText}>{item.photoArea}</Text>
                 </TouchableOpacity>
             </View>
         </View>
-
+    // console.log("email", email);
+    // console.log("photoURL", photoURL);
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.areaView}>
                 <View style={styles.userContainer}>
                     <Image
-                        source={require("../../assets/images/photo.jpg")}
+                        source={photoURL ?
+                            {uri: photoURL} :
+                            require('../../assets/images/anonymous.jpg') }
                         style={styles.userPhoto}
                     />
                     <View>
-                        <Text style={styles.userLoginTitle}>Anton Honcharov</Text>
-                        <Text style={styles.userEmailTitle}>antonhoncharovv@gmail.com</Text>
+                        <Text style={styles.userLoginTitle}>{ nickname ? nickname : "Anonymous" }</Text>
+                        <Text style={styles.userEmailTitle}>{ email ? email : "Anonymous"  }</Text>
                     </View>
                 </View>
 
                 {posts.length !== 0 ?
                         <FlatList
                             data={posts}
-                            keyExtractor={(item, indx) => indx.toString()}
+                            keyExtractor={(item) => item.id.toString()}
                             renderItem={renderItem}
                         /> :
                     <View style={styles.postContainer}>
@@ -96,7 +99,7 @@ export default function HomeScreen({ route, navigation }) {
                         <View style={styles.postCommentsContainer}>
                             <TouchableOpacity
                                 style={styles.postCommentTextContainer}
-                                onPress={() => navigation.navigate("Comments")}
+                                // onPress={() => navigation.navigate("Comments")}
                             >
                                 <MessageCircle width={24} height={24} />
                                 <Text style={styles.postCommentCount}>0</Text>
@@ -104,7 +107,7 @@ export default function HomeScreen({ route, navigation }) {
                             <TouchableOpacity
                                 style={styles.postCommentTextContainer}
                                 // onPress={() => navigation.navigate("Map", {posts})}
-                                onPress={()=>{console.log("Retro")}}
+                                // onPress={()=>{handleMapPress()}}
                             >
                                 <MapPin width={24} height={24} />
                                 <Text style={styles.postCommentText}>Кардильеры</Text>

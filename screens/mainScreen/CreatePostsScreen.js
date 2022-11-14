@@ -3,6 +3,7 @@ import { Camera, CameraType } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as MediaLibrary from "expo-media-library";
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import {
   StyleSheet,
@@ -24,7 +25,7 @@ import Trash from '../../assets/icons/trash.svg';
 
 import firebaseApp from '../../firebase/config';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore";
 
 
 
@@ -52,6 +53,8 @@ export default function CreatePostsScreen({ navigation }) {
         Keyboard.dismiss()
     }
 
+    const {userId, nickname} = useSelector((state) => state.auth)
+
     useEffect(() => {
         const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
         setKeyboardVisible(true)
@@ -75,7 +78,7 @@ export default function CreatePostsScreen({ navigation }) {
             return;
         }
         })();
-  }, []);
+    }, []);
 
     if (!permission) {
         // Camera permissions are still loading
@@ -111,11 +114,26 @@ export default function CreatePostsScreen({ navigation }) {
     const sendPhoto = () => { 
         if (post.title.length === 0) { return alert("Укажите название снимка") }
         if (post.area.length === 0) { return alert("Укажите название местности") }
-        navigation.navigate("Posts", { photo, location, post })
-
+        
+        uploadPostToServer()
+        navigation.navigate("Posts")
         // uploadPhotoToServer()
-        // onTrashPress()
-        // setKeyboardVisible(false)
+        onTrashPress()
+        setKeyboardVisible(false)
+    }
+
+    const uploadPostToServer = async () => {
+        const photo = await uploadPhotoToServer()
+        const db = await getFirestore(firebaseApp)
+        const createPost = await addDoc(collection(db, "posts"), {
+                photo,
+                photoTitle: post.title,
+                photoArea: post.area,
+                location: location.coords,
+                userId,
+                nickname,
+            }
+        )    
     }
 
     const uploadPhotoToServer = async () => {
@@ -130,7 +148,7 @@ export default function CreatePostsScreen({ navigation }) {
         await uploadBytes(mountainsRef, file)
         
         const processedPhoto = await getDownloadURL(ref(storage, `postImage/${uniquePostId}`))
-        console.log("processedPhoto", processedPhoto);
+        return processedPhoto;
     }
 
     const onTrashPress = () => {

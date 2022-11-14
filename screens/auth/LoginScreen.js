@@ -131,7 +131,7 @@ export default function LoginScreen({ navigation }) {
                   <Text style={styles.navBtnEntry}>Зарегистрироваться</Text>
                 </Text>
               </TouchableOpacity>
-              </View> 
+            </View> 
           </KeyboardAvoidingView>   
         </ImageBackground>   
       </View>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   image: {
     flex: 1,
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   form: {
     // paddingHorizontal: 16,
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 25,
@@ -175,7 +175,6 @@ const styles = StyleSheet.create({
     color: "#212121",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: 92,
     fontSize: 30,
     fontFamily: "Roboto-Medium",
     marginTop: 32,

@@ -13,14 +13,19 @@ import {
   Button,
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import Plus from '../../assets/icons/plus.svg';
 import { useDispatch } from 'react-redux';
+import { getStorage, ref, uploadBytes, getDownloadURL  } from 'firebase/storage';
+
+import Plus from '../../assets/icons/plus.svg';
 import { authSignUpUser } from '../../redux/auth/authOperations';
+
+import firebaseApp from '../../firebase/config';
 
 const initialState = {
   nickname: "",
   email: "",
   password: "",
+  avatar: null,
 }
 
 export default function RegistrationScreen({ navigation }) {
@@ -66,7 +71,6 @@ export default function RegistrationScreen({ navigation }) {
   }, [])
 
   const onFormSubmit = () => {
-    // console.log(user)
     dispatch(authSignUpUser(user))
     keyboardHide()
     setUser(initialState)
@@ -84,14 +88,15 @@ export default function RegistrationScreen({ navigation }) {
           >
             <View style={styles.form}>
               <View style={ styles.photoField }>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={styles.addPhotoBtn}
                   activeOpacity={0.1}
                 >
 
                       <Plus />
 
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+                
               </View>
               <Text style={styles.formTitle}>Регистрация</Text>
               <View style={{marginTop: keyboardVisible ? 15: 32,}}>
@@ -207,7 +212,7 @@ const styles = StyleSheet.create({
     color: "#212121",
     marginLeft: "auto",
     marginRight: "auto",
-    marginTop: 92,
+    marginTop: 32,
     fontSize: 30,
     fontFamily: "Roboto-Medium"
   },
@@ -231,7 +236,7 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Regular",
   },
   photoField: {
-    backgroundColor: "#F6F6F6",
+    // backgroundColor: "#F6F6F6",
     width: 120,
     height: 120,
     borderRadius: 16,
@@ -275,5 +280,5 @@ const styles = StyleSheet.create({
     top: 16,
     right: 16,
     bottom: 15,
-  }
+  },
 });
