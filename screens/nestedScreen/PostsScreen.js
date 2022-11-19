@@ -4,25 +4,22 @@ import {
     Text,
     View,
     Image,
-    ImageBackground,
     SafeAreaView, 
-    ScrollView,
     FlatList,
     TouchableOpacity,
 } from 'react-native';
-import { getFirestore, doc, onSnapshot, collection, getDocs, firestore } from "firebase/firestore";
+import { getFirestore, onSnapshot, collection } from "firebase/firestore";
 import { useSelector } from 'react-redux';
 
 import firebaseApp from '../../firebase/config';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import MessageCircle from '../../assets/icons/messageCircle.svg';
 import MapPin from '../../assets/icons/mapPin.svg';
 
-export default function HomeScreen({ route, navigation }) { 
+export default function HomeScreen({ navigation }) { 
     
     const [posts, setPosts] = useState([])
  
-    const { userId, nickname, email, photoURL } = useSelector((state) => state.auth)
+    const { nickname, email, photoURL } = useSelector((state) => state.auth)
 
     useEffect(() => {
         const db = getFirestore(firebaseApp)
@@ -44,10 +41,9 @@ export default function HomeScreen({ route, navigation }) {
             <View style={styles.postCommentsContainer}>
                 <TouchableOpacity
                     style={styles.postCommentTextContainer}
-                    onPress={() => navigation.navigate("Comments", { postId: item.id })}
+                    onPress={() => navigation.navigate("Comments", { postId: item.id, uri: item.photo })}
                 >
                     <MessageCircle width={24} height={24} />
-                    <Text style={styles.postCommentCount}>0</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.postCommentTextContainer}
@@ -62,9 +58,8 @@ export default function HomeScreen({ route, navigation }) {
                     <Text style={styles.postCommentText}>{item.photoArea}</Text>
                 </TouchableOpacity>
             </View>
-        </View>
-    // console.log("email", email);
-    // console.log("photoURL", photoURL);
+        </View> 
+    
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.areaView}>
@@ -90,27 +85,24 @@ export default function HomeScreen({ route, navigation }) {
                     <View style={styles.postContainer}>
                         <View style={styles.postPhotoContainer}>
                             <Image
-                                source={require("../../assets/images/photoBG.jpg")}
-                                // source={{uri:photo}}    
+                                source={require("../../assets/images/photoBG.jpg")} 
                                 style={styles.postPhoto}
                             />
                         </View>
-                        <Text style={styles.postPhotoTitle}>Горы</Text>
+                        <Text style={styles.postPhotoTitle}>Название фото</Text>
                         <View style={styles.postCommentsContainer}>
                             <TouchableOpacity
                                 style={styles.postCommentTextContainer}
-                                // onPress={() => navigation.navigate("Comments")}
+                                onPress={() => alert("Переход на комментарии к фотографие, опубликуйте свое фото!")}
                             >
                                 <MessageCircle width={24} height={24} />
-                                <Text style={styles.postCommentCount}>0</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={styles.postCommentTextContainer}
-                                // onPress={() => navigation.navigate("Map", {posts})}
-                                // onPress={()=>{handleMapPress()}}
+                                onPress={() => alert("Переход на локацию фотографии, опубликуйте свое фото!")}
                             >
                                 <MapPin width={24} height={24} />
-                                <Text style={styles.postCommentText}>Кардильеры</Text>
+                                <Text style={styles.postCommentText}>Название местности</Text>
                             </TouchableOpacity>
                         </View>
                     </View>}    
@@ -118,10 +110,7 @@ export default function HomeScreen({ route, navigation }) {
         </View>
     )
 }
-
-                
-
-
+        
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -154,14 +143,10 @@ const styles = StyleSheet.create({
         fontSize: 11,
     },
     postContainer: {
-        // flex: 1,
         justifyContent: "flex-start",
         marginTop: 16,
         marginBottom: 16,
     },
-    // postPhotoContainer: {
-    //     flex: 1,
-    // },
     postPhoto: {
         width: "100%",
         height: 240,
@@ -182,12 +167,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
     },
-    postCommentCount: {
-        color: "#BDBDBD",
-        fontFamily: "Roboto-Regular",
-        fontSize: 16,
-        marginLeft: 6,
-    },
     postCommentText: {
         color: "#212121",
         fontFamily: "Roboto-Regular",
@@ -197,5 +176,5 @@ const styles = StyleSheet.create({
     },
     areaView: {
         marginBottom: 70,
-    }
+    },
 })

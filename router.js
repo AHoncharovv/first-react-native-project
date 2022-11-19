@@ -1,6 +1,8 @@
 import React from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 import RegistrationScreen from './screens/auth/RegistrationScreen';
 import LoginScreen from './screens/auth/LoginScreen';
@@ -12,25 +14,19 @@ import Grid from './assets/icons/grid.svg';
 import New from './assets/icons/new.svg'; 
 import User from './assets/icons/user.svg'; 
 import LogOut from './assets/icons/logOut.svg'; 
-import ArrowLeft from './assets/icons/arrowLeft.svg';
+
+import { authSignOutUser } from "./redux/auth/authOperations";
 
 const AuthStack = createNativeStackNavigator()
 const MainTab = createBottomTabNavigator()
 
-
-// import { useDispatch } from 'react-redux';
-
-// import { authSignOutUser } from "./redux/auth/authOperations";
-
-//   const dispatch = useDispatch()
-
-//   const signOut = () => {
-//     console.log("signOut");
-//     dispatch(authSignOutUser())
-//     console.log("signOut");
-//   }
-
 export const useRoute = (isAuth) => {
+
+  const dispatch = useDispatch()
+  const signOut = () => {
+    dispatch(authSignOutUser())
+  }
+
   if (!isAuth) {
     return (
       <AuthStack.Navigator>
@@ -59,23 +55,7 @@ export const useRoute = (isAuth) => {
           name="Home"
           component={Home}
           options={{
-            title: "Публикации",
-            headerStyle: {
-              height: 88,
-            },
-            headerRightContainerStyle: {
-              paddingRight: 10,
-            },
-            headerTintColor: "#212121",
-            headerTitleStyle: {
-              fontFamily: "Roboto-Medium",
-              fontSize: 17,
-            },
-            headerRight: () => (
-              <LogOut
-                onPress={() => alert("This is a button!")}
-              />
-            ),
+            headerShown: false,
             tabBarIcon: ({ focused, color, size }) => <Grid size={size} stroke={color} />
           }}
         />
@@ -85,20 +65,21 @@ export const useRoute = (isAuth) => {
           options={{
             title: "Создать публикацию",
             headerStyle: {
-              height: 88,
-            },
-            headerLeftContainerStyle: {
-              paddingLeft: 10,
+              height: 60,
             },
             headerTintColor: "#212121",
             headerTitleStyle: {
               fontFamily: "Roboto-Medium",
               fontSize: 15.9,
             },
-            headerLeft: () => (
-              <ArrowLeft
-                onPress={() => {}}
-              />
+            headerBackTitleVisible: false,
+            headerRight: () => (
+              <TouchableOpacity
+                onPress={() => signOut()}
+                style={{marginRight: 10}}
+              >
+                <LogOut />
+              </TouchableOpacity>
             ),
             tabBarIcon: ({ focused, color, size }) => <New size={size} fill={color} />
           }}

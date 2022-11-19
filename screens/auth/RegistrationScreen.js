@@ -10,16 +10,11 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
-  Button,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { getStorage, ref, uploadBytes, getDownloadURL  } from 'firebase/storage';
 
-import Plus from '../../assets/icons/plus.svg';
 import { authSignUpUser } from '../../redux/auth/authOperations';
-
-import firebaseApp from '../../firebase/config';
 
 const initialState = {
   nickname: "",
@@ -29,6 +24,7 @@ const initialState = {
 }
 
 export default function RegistrationScreen({ navigation }) {
+  
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [loginBorderColor, setLoginBorderColor] = useState(false)
   const [emailBorderColor, setEmailBorderColor] = useState(false)
@@ -87,17 +83,6 @@ export default function RegistrationScreen({ navigation }) {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View style={styles.form}>
-              <View style={ styles.photoField }>
-                {/* <TouchableOpacity
-                  style={styles.addPhotoBtn}
-                  activeOpacity={0.1}
-                >
-
-                      <Plus />
-
-                </TouchableOpacity> */}
-                
-              </View>
               <Text style={styles.formTitle}>Регистрация</Text>
               <View style={{marginTop: keyboardVisible ? 15: 32,}}>
                 <TextInput
@@ -129,7 +114,7 @@ export default function RegistrationScreen({ navigation }) {
                   onChangeText={(value)=> setUser((prevState)=>({...prevState, email: value}))}
                 />
               </View>
-              <View style={{...styles.passwordView, /*marginBottom: keyboardVisible && 33*/}}>
+              <View style={styles.passwordView}>
                 <TextInput
                   style={{
                     ...styles.input,
@@ -146,9 +131,9 @@ export default function RegistrationScreen({ navigation }) {
                 />
                 <Text style={styles.passwordTitle} onPress={()=>{setSecureTextEntry(false)}}>Показать</Text>
               </View>
-              <View style={{ marginTop: keyboardVisible ? 15 : 43, /*display: keyboardVisible && "none"*/}}>
+              <View style={{ marginTop: keyboardVisible ? 15 : 43}}>
                 <TouchableOpacity
-                  style={{...styles.signUpBtn, width: dimension,}}
+                  style={{...styles.signUpBtn, width: dimension }}
                   activeOpacity={0.8}
                   onPress={()=>onFormSubmit()}
                 >
@@ -159,7 +144,7 @@ export default function RegistrationScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                style={{ marginTop: 16, /*display: keyboardVisible && 'none'*/ }}
+                style={{ marginTop: 16 }}
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate("Login")}
               >
@@ -175,7 +160,6 @@ export default function RegistrationScreen({ navigation }) {
     </TouchableWithoutFeedback>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -199,7 +183,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    // paddingHorizontal: 16,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
@@ -236,7 +219,6 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Regular",
   },
   photoField: {
-    // backgroundColor: "#F6F6F6",
     width: 120,
     height: 120,
     borderRadius: 16,

@@ -7,31 +7,31 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Button,
   FlatList
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getAuth, signOut } from "firebase/auth";
-import { getFirestore, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
+import firebaseApp from '../../firebase/config';
 
-import Union from '../../assets/icons/union.svg';
 import LogOut from '../../assets/icons/logOut.svg';
-import MessageCircleOrange from '../../assets/icons/messageCircleOrange.svg';
 import MapPin from '../../assets/icons/mapPin.svg';
 import MessageCircle from '../../assets/icons/messageCircle.svg';
 
-import firebaseApp from '../../firebase/config';
 import { authSignOutUser } from '../../redux/auth/authOperations';
 import Avatar from '../../components/Avatar';
 
-export default function ProfileScreen() { 
+export default function ProfileScreen({ navigation }) { 
   const [posts, setPosts] = useState([])
-  const { userId, nickname, email, photoURL } = useSelector((state) => state.auth)
+  const { userId, nickname } = useSelector((state) => state.auth)
   const dispatch = useDispatch()
-  const auth = getAuth(firebaseApp)
-  const state = useSelector(state => state.auth)
 
   useEffect(() => {
     const db = getFirestore(firebaseApp)
@@ -43,119 +43,101 @@ export default function ProfileScreen() {
 
   const signOut = () => {
     dispatch(authSignOutUser())
+    console.log("retro");
   }
   
   const renderItem = ({ item }) =>
-        <View style={styles.postContainer}>
-            <View style={styles.postPhotoContainer}>
-                <Image
-                    source={{uri: item.photo}}  
-                    style={styles.postPhoto}
-                />
-            </View>
-            <Text style={styles.postPhotoTitle}>{item.photoTitle}</Text>
-            <View style={styles.postCommentsContainer}>
-                <TouchableOpacity
-                    style={styles.postCommentTextContainer}
-                    onPress={() => navigation.navigate("Comments", { postId: item.id })}
-                >
-                    <MessageCircle width={24} height={24} />
-                    <Text style={styles.postCommentCount}>0</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.postCommentTextContainer}
-                    onPress={() => {
-                        navigation.navigate("Map", {
-                            latitude: item.location.latitude,
-                            longitude: item.location.longitude,
-                        })
-                    }}
-                >
-                    <MapPin width={24} height={24} />
-                    <Text style={styles.postCommentText}>{item.photoArea}</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-  console.log("photoURL", photoURL);
+    <View style={styles.postContainer}>
+      <View style={styles.postPhotoContainer}>
+        <Image
+            source={{uri: item.photo}}  
+            style={styles.postPhoto}
+        />
+      </View>
+      <Text style={styles.postPhotoTitle}>{item.photoTitle}</Text>
+      <View style={styles.postCommentsContainer}>
+        <TouchableOpacity
+          style={styles.postCommentTextContainer}
+          onPress={() => navigation.navigate("Comments", { postId: item.id })}
+        >
+          <MessageCircle width={24} height={24} />
+        </TouchableOpacity>      
+        <TouchableOpacity
+          style={styles.postCommentTextContainer}
+          onPress={() => {
+            navigation.navigate("Map", {
+              latitude: item.location.latitude,
+              longitude: item.location.longitude,
+            })
+          }}
+        >
+          <MapPin width={24} height={24} />
+          <Text style={styles.postCommentText}>{item.photoArea}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
  
   return (
-      <View style={styles.container}>
-        <ImageBackground
-          source={require("../../assets/images/photoBG.jpg")}
-          style={styles.image}
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../../assets/images/photoBG.jpg")}
+        style={styles.image}
       >
-   
-          <View style={styles.areaContainer}>
-              <View style={styles.photoField}>
-                {/* <Image
-                  source={require("../../assets/images/photo.jpg")}
-                  style={styles.userPhoto}
-                />
-                <TouchableOpacity
-                  style={styles.userPhotoBtn}
-                  activeOpacity={0.8}
-                >
-                  <Union />
-                </TouchableOpacity> */}
-                <Avatar />
-              </View>
+        <View style={styles.areaContainer}>
+          <View style={styles.photoField}>
+            <Avatar />
+          </View>
+          <TouchableOpacity
+            style={styles.logOutContainer}
+            activeOpacity={0.8}
+            onPress={signOut}
+          >
+            <LogOut width={24} height={24} />
+          </TouchableOpacity>
           
-              
-
-              <TouchableOpacity
-                style={styles.logOutContainer}
-                activeOpacity={0.8}
-                onPress={signOut}
-              >
-                <LogOut width={24} height={24} />
-            </TouchableOpacity>
-            
-
             <View style={styles.userNameContainer}>
-            <Text style={styles.userNameText}>{ nickname ? nickname : "Anonymous" }</Text>
+              <Text style={styles.userNameText}>{ nickname ? nickname : "Anonymous" }</Text>
             </View>
-
-            {posts.length !== 0 ?
-                        <FlatList
-                            data={posts}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={renderItem}
-                        /> :
-                    <View style={styles.postContainer}>
-                        <View style={styles.postPhotoContainer}>
-                            <Image
-                                source={require("../../assets/images/photoBG.jpg")}
-                                // source={{uri:photo}}    
-                                style={styles.postPhoto}
-                            />
-                        </View>
-                        <Text style={styles.postPhotoTitle}>Горы</Text>
-                        <View style={styles.postCommentsContainer}>
-                            <TouchableOpacity
-                                style={styles.postCommentTextContainer}
-                                // onPress={() => navigation.navigate("Comments")}
-                            >
-                                <MessageCircle width={24} height={24} />
-                                <Text style={styles.postCommentCount}>0</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.postCommentTextContainer}
-                                // onPress={() => navigation.navigate("Map", {posts})}
-                                // onPress={()=>{handleMapPress()}}
-                            >
-                                <MapPin width={24} height={24} />
-                                <Text style={styles.postCommentText}>Кардильеры</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>}
-
+            {posts.length !== 0 ?  
+              <SafeAreaView style={styles.safeAreaContainer}>
+                <FlatList
+                  data={posts}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderItem}
+                />
+              </SafeAreaView>
+            :
+              <ScrollView>
+                <View style={styles.postContainer}>
+                  <View style={styles.postPhotoContainer}>
+                    <Image
+                        source={require("../../assets/images/photoBG.jpg")}
+                        style={styles.postPhoto}
+                    />
+                  </View>
+                    <Text style={styles.postPhotoTitle}>Название фото</Text>
+                  <View style={styles.postCommentsContainer}>
+                    <TouchableOpacity
+                      style={styles.postCommentTextContainer}
+                      onPress={() => alert("Переход на комментарии к фотографие, опубликуйте свое фото!")}
+                    >
+                      <MessageCircle width={24} height={24} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.postCommentTextContainer}
+                      onPress={() => alert("Переход на локацию фотографии, опубликуйте свое фото!")}
+                    >
+                      <MapPin width={24} height={24} />
+                      <Text style={styles.postCommentText}>Название местности</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </ScrollView>
+            }
         </View>
-        
-
-        </ImageBackground>        
-      </View>
-
-    )
+      </ImageBackground>        
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -175,7 +157,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: "#FFFFFF",
-    position: "relative", // вопрос
+    position: "relative",
   },
   photoField: {
     position: "absolute",
@@ -228,31 +210,28 @@ const styles = StyleSheet.create({
     resizeMode: "stretch",
   },
   postPhotoTitle: {
-        marginTop: 8,
-        fontFamily: "Roboto-Regular",
-        fontSize: 16,
-    },
-    postCommentsContainer: {
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        marginTop: 8,
-    },
-    postCommentTextContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    postCommentCount: {
-        color: "#212121",
-        fontFamily: "Roboto-Regular",
-        fontSize: 16,
-      marginLeft: 6,
-        marginRight: 24,
-    },
-    postCommentText: {
-        color: "#212121",
-        fontFamily: "Roboto-Regular",
-        fontSize: 16,
-        marginLeft: 6,
-        textDecorationLine: "underline",
+    marginTop: 8,
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+  },
+ postCommentsContainer: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  postCommentTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  postCommentText: {
+    color: "#212121",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    marginLeft: 6,
+    textDecorationLine: "underline",
+  },
+  safeAreaContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
   },
 })

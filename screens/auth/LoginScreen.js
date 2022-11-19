@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { authSignInUser } from '../../redux/auth/authOperations';
 
 const initialState = {
@@ -139,7 +140,6 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    // paddingHorizontal: 16,
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "#FFFFFF",

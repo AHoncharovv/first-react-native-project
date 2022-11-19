@@ -1,10 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
 import PostsScreen from "../nestedScreen/PostsScreen";
 import CommentsScreen from "../nestedScreen/CommentsScreen";
 import MapScreen from "../nestedScreen/MapScreen";
@@ -18,22 +13,57 @@ export default function Home() {
         name="Posts"
         component={PostsScreen}
         options={{
-          headerShown: false,
+          title: "Публикации",
+          headerStyle: {
+            height: 60,
+          },
+          headerRightContainerStyle: {
+            paddingRight: 10,
+          },
+          headerTintColor: "#212121",
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontSize: 17,
+          },          
         }}
       />
       <NestedScreen.Screen
         name="Comments"
         component={CommentsScreen}
         options={{
-          headerShown: false,
-        }}
+          title: "Комментарии",
+          headerStyle: {
+            height: 60,
+          },
+          headerTintColor: "#212121",
+          headerTitleStyle: {
+            fontFamily: "Roboto-Medium",
+            fontSize: 17,
+          },
+          headerLeftContainerStyle: {
+            paddingLeft: 10,
+          },
+          headerBackTitleVisible: false,
+        }} 
       />
       <NestedScreen.Screen
         name="Map"
         component={MapScreen}
-        options={{
-          headerShown: false,
-        }}
+          options={{
+            title: "Карты",
+            headerStyle: {
+              height: 60,
+            },
+            headerTintColor: "#212121",
+            headerTitleStyle: {
+              fontFamily: "Roboto-Medium",
+              fontSize: 17,
+            },
+            headerLeftContainerStyle: {
+              paddingLeft: 10,
+            },
+            headerBackTitleVisible: false,
+          }} 
       />
     </NestedScreen.Navigator>
   );

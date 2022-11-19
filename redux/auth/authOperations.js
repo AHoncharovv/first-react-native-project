@@ -14,7 +14,6 @@ const auth = getAuth(firebaseApp)
 
 const authSignInUser = ({email, password}) => async (dispatch, getState) => {
     try {
-        // const userCredential =
         await signInWithEmailAndPassword(auth, email, password)
     } catch (error) {
         console.log("error", error)
@@ -24,8 +23,7 @@ const authSignInUser = ({email, password}) => async (dispatch, getState) => {
 
 const authSignUpUser = ({email, password, nickname}) => async (dispatch, getState) => {
     try {
-        /*const userCredential =*/ await createUserWithEmailAndPassword(auth, email, password)
-
+        await createUserWithEmailAndPassword(auth, email, password)
         await updateProfile(auth.currentUser, {
             displayName: nickname,
         })

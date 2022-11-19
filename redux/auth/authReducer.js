@@ -22,7 +22,6 @@ export const authSlice = createSlice({
         authStateChange: (state, { payload }) => ({
             ...state,
             stateChange: payload.stateChange,
-            // avatar: payload.avatar,
         }),
         authSignOut: () => state,
     }

@@ -1,7 +1,5 @@
-import { async } from '@firebase/util';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
-import * as MediaLibrary from "expo-media-library";
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -25,9 +23,7 @@ import Trash from '../../assets/icons/trash.svg';
 
 import firebaseApp from '../../firebase/config';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore";
-
-
+import { getFirestore, addDoc, collection } from "firebase/firestore";
 
 const initialState = {
   title: "",
@@ -35,18 +31,16 @@ const initialState = {
 }
 
 export default function CreatePostsScreen({ navigation }) { 
-    const [keyboardVisible, setKeyboardVisible] = useState(false)
 
+    const [keyboardVisible, setKeyboardVisible] = useState(false)
     const [camera, setCamera] = useState(null) 
     const [photo, setPhoto] = useState(null)
     const [dimension, setDimension] = useState(Dimensions.get("window").width - 16 * 2)
     const [post, setPost] = useState(initialState)
-
-    // const [type, setType] = useState(CameraType.back);
     const [permission, requestPermission] = Camera.useCameraPermissions();
-
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
+    const [location, setLocation] = useState(null)
+    const [errorMsg, setErrorMsg] = useState(null)
+    const [cameraBtnVisible, setCameraBtnVisible] = useState(true)
 
     const keyboardHide = () => {
         setKeyboardVisible(true)
@@ -81,12 +75,10 @@ export default function CreatePostsScreen({ navigation }) {
     }, []);
 
     if (!permission) {
-        // Camera permissions are still loading
         return <View />;
     }
 
     if (!permission.granted) {
-        // Camera permissions are not granted yet
         return (
         <View style={styles.container}>
             <Text style={{ textAlign: 'center' }}>Нам нужно ваше разрешение, чтобы показать камеру</Text>
@@ -104,22 +96,20 @@ export default function CreatePostsScreen({ navigation }) {
     }
 
     const takePhoto = async () => {
+        setCameraBtnVisible(false)
         const photo = await camera.takePictureAsync()
         const location = await Location.getCurrentPositionAsync()
         setPhoto(photo.uri)
         setLocation(location)
-        // setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
     }
 
-    const sendPhoto = () => { 
+    const sendPhoto = async () => { 
         if (post.title.length === 0) { return alert("Укажите название снимка") }
         if (post.area.length === 0) { return alert("Укажите название местности") }
         
-        uploadPostToServer()
+        await uploadPostToServer()
         navigation.navigate("Posts")
-        // uploadPhotoToServer()
         onTrashPress()
-        setKeyboardVisible(false)
     }
 
     const uploadPostToServer = async () => {
@@ -137,8 +127,6 @@ export default function CreatePostsScreen({ navigation }) {
     }
 
     const uploadPhotoToServer = async () => {
-        // const storage = getStorage(firebaseApp);
-        // const db = getFirestore(firebaseApp);
         const response = await fetch(photo)
         const file = await response.blob()
 
@@ -155,25 +143,27 @@ export default function CreatePostsScreen({ navigation }) {
         setPhoto(null)
         setPost(initialState)
         setLocation(null)
+        setCameraBtnVisible(true)
+        setKeyboardVisible(false)
     }
     
     return (
         <TouchableWithoutFeedback onPress={() => keyboardHide()}>
-            <KeyboardAvoidingView   KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                <ScrollView>
-                    <View style={styles.container}>
+            <View style={styles.container}>
+                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                    <ScrollView>
                         <View style={{...styles.cameraContainer, display: keyboardVisible && "none"}}>
                             <Camera style={styles.camera} ref={setCamera}>
                                 {photo && <View style={styles.picture}>
                                     <Image source={{uri:photo}}  style={{height: 240, width: dimension}}/>
                                 </View>}
-                                <TouchableOpacity
+                                {cameraBtnVisible && <TouchableOpacity
                                     style={styles.cameraButton}
                                     activeOpacity={0.8}
                                     onPress={() => takePhoto()}
                                 >
                                     <CameraBlack width={24} height={24} />
-                                </TouchableOpacity>
+                                </TouchableOpacity>}
                             </Camera>
                         </View>
                         <Text style={styles.photoTitle}>Загрузите фото</Text>
@@ -200,19 +190,19 @@ export default function CreatePostsScreen({ navigation }) {
                             style={styles.addButton}
                             activeOpacity={0.8}
                             onPress={()=>sendPhoto()}
-                            >
+                        >
                             <Text style={styles.buttonText}>Опубликовать</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.deleteButton}
                             activeOpacity={0.8}
                             onPress={() => {onTrashPress()}}
-                            >
+                        >
                             <Trash width={24} height={24}  />
                         </TouchableOpacity>   
-                    </View> 
-                </ScrollView>  
-            </KeyboardAvoidingView>  
+                    </ScrollView>  
+                </KeyboardAvoidingView>  
+            </View>    
         </TouchableWithoutFeedback>    
     )
 }
@@ -222,7 +212,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
-        alignItems: 'flex-start',
+        // alignItems: 'flex-start',
         paddingTop: 32,
         paddingLeft: 16,
         paddingRight: 16,
@@ -231,9 +221,6 @@ const styles = StyleSheet.create({
         flex: 1,
         width: "100%",
         borderRadius: 25,
-        // height: 240,
-        //  
-        // borderRadius: 8,
     },
     camera: {
         height: 240,

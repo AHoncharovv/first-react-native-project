@@ -2,15 +2,12 @@ import { Camera, CameraType } from 'expo-camera';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
-import { AntDesign, Ionicons, FontAwesome } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore";
 import { getAuth, updateProfile } from "firebase/auth";
 
 import firebaseApp from '../firebase/config';
 import { authStateChangeUser } from '../redux/auth/authOperations';
-import { async } from '@firebase/util';
-
 
 export default function Avatar() {
 
@@ -28,12 +25,10 @@ export default function Avatar() {
     }, [photoURL])
 
     if (!permission) {
-        // Camera permissions are still loading
         return <View />;
     }
 
     if (!permission.granted) {
-        // Camera permissions are not granted yet
         return (
         <View style={styles.container}>
             <Text style={{ textAlign: 'center' }}>Нам нужно ваше разрешение, чтобы показать камеру</Text>
@@ -49,7 +44,6 @@ export default function Avatar() {
     const takePhoto = async () => {
         const photo = await camera.takePictureAsync()
         setPhoto(photo.uri)
-        // setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
     }
 
     const resetPhoto = async () => {
@@ -62,14 +56,13 @@ export default function Avatar() {
         const file = await response.blob()
 
         const storage = await getStorage(firebaseApp)
-        // const uniquePostId = Date.now().toString()
         const mountainsRef = await ref(storage, `userImage/${userId}`)
         await uploadBytes(mountainsRef, file)
         
         const processedPhoto = await getDownloadURL(ref(storage, `userImage/${userId}`))
         await updateUserPhoto(processedPhoto)
         dispatch(authStateChangeUser())
-        
+        resetPhoto()
     }
     
     const updateUserPhoto = async (url) => {
@@ -78,19 +71,19 @@ export default function Avatar() {
         photoURL: url,
         })
     }
-    console.log("photo", photo);
-    console.log("photoURL", photoURL);
+
     return (
         <View style={styles.container}>
             <Camera style={styles.camera} type={type} ref={setCamera}>
-                {photo && <View style={styles.picture}>
-                    <Image source={{uri:photo}}  style={styles.pictureImage}/>
-                </View>}
+                {photo &&
+                    <View style={styles.picture}>
+                        <Image source={{uri:photo}}  style={styles.pictureImage}/>
+                    </View>}
                     {photo ?
                         <TouchableOpacity
                             style={ styles.cameraReverse }
-                        activeOpacity={0.8}
-                        onPress={savePhoto}
+                            activeOpacity={0.8}
+                            onPress={savePhoto}
                         >
                             <AntDesign name="cloudupload" size={24} color="#FF6C00" />
                         </TouchableOpacity> 
@@ -102,7 +95,6 @@ export default function Avatar() {
                         >
                             <Ionicons name="md-camera-reverse" size={24} color="#FF6C00" />
                         </TouchableOpacity>}
-
                     {photo ?
                         <TouchableOpacity
                             style={styles.cameraClose}
@@ -119,12 +111,7 @@ export default function Avatar() {
                         >
                             <Ionicons name="camera" size={24} color="#FF6C00" />
                         </TouchableOpacity>}  
-
-            </Camera>
-            
-            
-            
-            
+            </Camera>    
         </View>
     )
 }
@@ -143,10 +130,8 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 0,
         left: 0,
-        // zIndex: 100,
     },
     pictureImage: {
-        // flex: 1,
         width: 120,
         height: 120,
     },
@@ -170,5 +155,4 @@ const styles = StyleSheet.create({
         right: -10,
         top: 50, 
     },
-
 })

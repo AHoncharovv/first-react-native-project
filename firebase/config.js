@@ -1,8 +1,4 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-
-
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyDSnaYh1140JznkGs7a1bRPAqGz9KYA_XY",
@@ -17,21 +13,3 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 
 export default firebaseApp;
-
-// rules_version = '2';
-// service firebase.storage {
-//   match /b/{bucket}/o {
-//     match /{allPaths=**} {
-//       allow read, write: if request.auth !== null;
-//     }
-//   }
-// }
-
-// rules_version = '2';
-// service cloud.firestore {
-//   match /databases/{database}/documents {
-//     match /{document=**} {
-//       allow read, write: if request.auth !== null;
-//     }
-//   }
-// }
