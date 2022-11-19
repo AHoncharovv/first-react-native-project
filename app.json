@@ -2,12 +2,13 @@
   "expo": {
     "name": "myVeryFirstProject",
     "slug": "myVeryFirstProject",
+    "description": "A small social application for sharing photos.",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/abstract-shape.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/pic.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
